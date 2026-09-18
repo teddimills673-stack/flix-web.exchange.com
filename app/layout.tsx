@@ -13,10 +13,14 @@ export const metadata: Metadata = {
   title: 'OKX FLIX Cryptocurrency Exchange',
   description: 'OKX FLIX Cryptocurrency Exchange is a professional digital-asset cryptocurrency trading platform providing spot trading, margin trading, secure multi-asset wallet, and market analytics.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/logo.svg',
+    apple: '/logo.svg',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'OKX FLIX',
+    title: 'OKXFLIX',
   },
   openGraph: {
     title: 'OKX FLIX Cryptocurrency Exchange',
