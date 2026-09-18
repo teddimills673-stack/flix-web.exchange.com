@@ -128,6 +128,24 @@ export const SupportView: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  // Tawk.to script injection on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const propertyId = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID || '605151b1f768220f86a23e5a';
+    const widgetId = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID || 'default';
+
+    if (!(window as any).Tawk_API) {
+      (window as any).Tawk_API = (window as any).Tawk_API || {};
+      (window as any).Tawk_LoadStart = new Date();
+      const s1 = document.createElement("script");
+      s1.async = true;
+      s1.src = `https://embed.tawk.to/${propertyId}/${widgetId}`;
+      s1.charset = 'UTF-8';
+      s1.setAttribute('crossorigin', '*');
+      document.head.appendChild(s1);
+    }
+  }, []);
+
   const sendMessageToApi = async (textToSend: string) => {
     if ((!textToSend.trim() && !selectedImage) || isLoading) return;
 
@@ -150,11 +168,20 @@ export const SupportView: React.FC = () => {
     setIsLoading(true);
     setErrorMessage(null);
 
-    // If local human request, immediately open live chat without waiting or requiring extra clicks
+    // If local human request, route to tawk.to and keep conversation in current view
     if (isLocalHumanRequest) {
       setIsLoading(false);
-      setActiveTabMode('live');
-      setLiveChatFailed(false);
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: 'ai',
+          text: "Your request has been sent to our support team. A support agent can join the conversation when available.",
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+      if (typeof window !== 'undefined' && (window as any).Tawk_API?.maximize) {
+        (window as any).Tawk_API.maximize();
+      }
       return;
     }
 
@@ -180,9 +207,17 @@ export const SupportView: React.FC = () => {
       ]);
 
       if (data.isHumanHandoff) {
-        // Immediately open live tawk.to chat without any intermediate button or confirmation
-        setActiveTabMode('live');
-        setLiveChatFailed(false);
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: 'ai',
+            text: "Your request has been sent to our support team. A support agent can join the conversation when available.",
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+        ]);
+        if (typeof window !== 'undefined' && (window as any).Tawk_API?.maximize) {
+          (window as any).Tawk_API.maximize();
+        }
       }
     } catch (err) {
       setErrorMessage("Network anomaly detected. Automatically retrying...");
@@ -202,7 +237,17 @@ export const SupportView: React.FC = () => {
           }
         ]);
         if (retryData.isHumanHandoff) {
-          setActiveTabMode('live');
+          setMessages(prev => [
+            ...prev,
+            {
+              sender: 'ai',
+              text: "Your request has been sent to our support team. A support agent can join the conversation when available.",
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          ]);
+          if (typeof window !== 'undefined' && (window as any).Tawk_API?.maximize) {
+            (window as any).Tawk_API.maximize();
+          }
         }
         setErrorMessage(null);
       } catch (retryErr) {
