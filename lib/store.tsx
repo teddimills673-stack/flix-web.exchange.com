@@ -99,11 +99,13 @@ interface AppContextType {
   feeConfiguration: FeeConfiguration;
   updateFeeConfiguration: (config: FeeConfiguration) => void;
   resetFeeConfiguration: () => void;
+  deleteAccount: (email: string, password: string) => { success: boolean; error?: string };
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const CURRENCY_SYMBOLS: Record<BaseCurrency, { symbol: string; rate: number; name: string }> = {
+  USDT: { symbol: 'USDT', rate: 1.0, name: 'Tether USD (USDT)' },
   USD: { symbol: '$', rate: 1.0, name: 'US Dollar' },
   EUR: { symbol: '€', rate: 0.92, name: 'Euro' },
   GBP: { symbol: '£', rate: 0.78, name: 'British Pound' },
@@ -160,7 +162,35 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   
   const [theme, setTheme] = useState<ThemeMode>('dark');
-  const [baseCurrency, setBaseCurrency] = useState<BaseCurrency>('USD');
+  const [baseCurrency, setBaseCurrencyState] = useState<BaseCurrency>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedCurr = localStorage.getItem('okxflix_currency');
+        if (savedCurr) return savedCurr as BaseCurrency;
+        const savedUser = localStorage.getItem('okxflix_user');
+        if (savedUser) {
+          const parsed = JSON.parse(savedUser);
+          if (parsed.baseCurrency) return parsed.baseCurrency;
+        }
+      } catch (e) {}
+    }
+    return 'USDT';
+  });
+
+  const setBaseCurrency = (curr: BaseCurrency) => {
+    setBaseCurrencyState(curr);
+    try {
+      localStorage.setItem('okxflix_currency', curr);
+      setUser(prev => {
+        const updated = { ...prev, baseCurrency: curr };
+        localStorage.setItem('okxflix_user', JSON.stringify(updated));
+        if (updated.id) {
+          localStorage.setItem(`okxflix_user_${updated.id}`, JSON.stringify(updated));
+        }
+        return updated;
+      });
+    } catch (e) {}
+  };
   const [language, setLanguageState] = useState<LanguageCode>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -192,17 +222,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (savedUser) {
           const parsed = JSON.parse(savedUser);
           if (parsed && parsed.email) {
+            if (parsed.email === 'oflixexchange@gmail.com' || parsed.role === 'owner') {
+              if (!parsed.avatarUrl || parsed.avatarUrl === '') parsed.avatarUrl = '/owner-avatar.png';
+              parsed.role = 'owner';
+            }
             const regStr = localStorage.getItem('okxflix_registered_users');
             if (regStr) {
               const regUsers = JSON.parse(regStr);
               if (regUsers[parsed.email]?.profile) {
-                return regUsers[parsed.email].profile;
+                const p = regUsers[parsed.email].profile;
+                if ((p.email === 'oflixexchange@gmail.com' || p.role === 'owner') && (!p.avatarUrl || p.avatarUrl === '')) {
+                  p.avatarUrl = '/owner-avatar.png';
+                }
+                return p;
               }
             }
             if (parsed.id) {
               const specificUser = localStorage.getItem(`okxflix_user_${parsed.id}`);
               if (specificUser) {
-                return JSON.parse(specificUser);
+                const p = JSON.parse(specificUser);
+                if ((p.email === 'oflixexchange@gmail.com' || p.role === 'owner') && (!p.avatarUrl || p.avatarUrl === '')) {
+                  p.avatarUrl = '/owner-avatar.png';
+                }
+                return p;
               }
             }
             return parsed;
@@ -210,17 +252,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       } catch (e) {}
     }
-    return INITIAL_USER;
+    const def = INITIAL_USER;
+    if ((def.email === 'oflixexchange@gmail.com' || def.role === 'owner') && (!def.avatarUrl || def.avatarUrl === '')) {
+      def.avatarUrl = '/owner-avatar.png';
+    }
+    return def;
   });
 
   const setUser: React.Dispatch<React.SetStateAction<UserProfile>> = (action) => {
     const nextUser = typeof action === 'function' ? action(user) : action;
+    if (nextUser && (nextUser.email === 'oflixexchange@gmail.com' || nextUser.role === 'owner')) {
+      if (!nextUser.avatarUrl || nextUser.avatarUrl === '') {
+        nextUser.avatarUrl = '/owner-avatar.png';
+      }
+      nextUser.role = 'owner';
+    }
     setUserState(nextUser);
     if (nextUser && nextUser.language) {
       setLanguageState(nextUser.language);
     }
     if (nextUser && nextUser.id) {
-      const isOwnerUser = nextUser.role === 'owner' || nextUser.email === 'richardshannon901@gmail.com';
+      const isOwnerUser = nextUser.role === 'owner' || nextUser.email === 'richardshannon901@gmail.com' || nextUser.email === 'oflixexchange@gmail.com';
       try {
         localStorage.setItem('okxflix_user', JSON.stringify(nextUser));
         localStorage.setItem(`okxflix_user_${nextUser.id}`, JSON.stringify(nextUser));
@@ -908,6 +960,78 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addAuditLog('USER_LOGOUT', 'User session terminated and token invalidated securely.', 'SUCCESS');
   };
 
+  const deleteAccount = (emailInput: string, passInput: string): { success: boolean; error?: string } => {
+    try {
+      const trimmedEmail = emailInput.trim().toLowerCase();
+      if (!trimmedEmail || !passInput) {
+        return { success: false, error: 'Please enter both your registered email address and password to confirm permanent deletion.' };
+      }
+      if (trimmedEmail !== user.email.toLowerCase()) {
+        return { success: false, error: 'The email address entered does not match the currently authenticated account.' };
+      }
+
+      let isValid = false;
+      const isOwnerUser = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+      if (isOwnerUser) {
+        if (passInput === 'Risk55yy@@$') {
+          isValid = true;
+        }
+      } else {
+        const regStr = localStorage.getItem('okxflix_registered_users');
+        if (regStr) {
+          const registeredUsers = JSON.parse(regStr);
+          const found = registeredUsers[trimmedEmail];
+          if (found && found.password === passInput) {
+            isValid = true;
+          }
+        }
+      }
+
+      if (!isValid) {
+        addAuditLog('ACCOUNT_DELETION_FAILED', `Permanent account deletion failed for ${trimmedEmail}: Incorrect password.`, 'FAILED');
+        return { success: false, error: 'Incorrect password. Account deletion rejected.' };
+      }
+
+      const userId = user.id;
+
+      try {
+        const regStr = localStorage.getItem('okxflix_registered_users');
+        if (regStr) {
+          const registeredUsers = JSON.parse(regStr);
+          delete registeredUsers[trimmedEmail];
+          localStorage.setItem('okxflix_registered_users', JSON.stringify(registeredUsers));
+        }
+      } catch (e) {}
+
+      try {
+        localStorage.removeItem(`okxflix_user_${userId}`);
+        localStorage.removeItem(`okxflix_balances_${userId}`);
+        localStorage.removeItem(`okxflix_transactions_${userId}`);
+        localStorage.removeItem(`okxflix_orders_${userId}`);
+        localStorage.removeItem(`okxflix_bank_accounts_${userId}`);
+        localStorage.removeItem(`okxflix_credit_cards_${userId}`);
+        localStorage.removeItem(`okxflix_owner_sessions_${userId}`);
+        localStorage.removeItem(`okxflix_sec_events_${userId}`);
+        localStorage.removeItem('okxflix_session_token');
+        localStorage.removeItem('okxflix_user');
+      } catch (e) {}
+
+      setIsAuthenticated(false);
+      setUser(INITIAL_USER);
+      setBalances(ZERO_BALANCES);
+      setTransactions([]);
+      setOrders([]);
+      setBankAccounts([]);
+      setCreditCards([]);
+
+      addAuditLog('ACCOUNT_PERMANENTLY_DELETED', `Account ${trimmedEmail} (ID: ${userId}) permanently deleted.`, 'SUCCESS');
+      return { success: true };
+    } catch (err: any) {
+      addAuditLog('ACCOUNT_DELETION_ERROR', `System error during account deletion: ${err?.message || 'unknown'}`, 'FAILED');
+      return { success: false, error: 'A system error occurred during account deletion. Please try again.' };
+    }
+  };
+
   const DEFAULT_FEE_CONFIG: FeeConfiguration = {
     feeSystemEnabled: true,
     activeWarningKey: 'step1',
@@ -1061,7 +1185,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       appreciationHistory, runPortfolioAppreciation,
       todayAppreciation, totalAppreciation, marketAppreciation,
       lastCalculationTimestamp,
-      feeConfiguration, updateFeeConfiguration, resetFeeConfiguration
+      feeConfiguration, updateFeeConfiguration, resetFeeConfiguration, deleteAccount
     }}>
       <div suppressHydrationWarning className={theme === 'light' ? 'light bg-slate-50 text-slate-900 min-h-screen' : 'dark bg-[#0b0f19] text-slate-100 min-h-screen'}>
         {children}

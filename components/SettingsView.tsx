@@ -3,14 +3,51 @@
 import React, { useState } from 'react';
 import { useApp, CURRENCY_SYMBOLS } from '@/lib/store';
 import { BaseCurrency } from '@/types';
-import { Settings, User, Globe, Shield, Eye, EyeOff, CheckCircle2, Camera, Upload, Trash2, Loader2 } from 'lucide-react';
+import { Settings, User, Globe, Shield, Eye, EyeOff, CheckCircle2, Camera, Upload, Trash2, Loader2, AlertTriangle, AlertCircle, X } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
-  const { user, setUser, theme, setTheme, baseCurrency, setBaseCurrency, language, setLanguage, addAuditLog } = useApp();
+  const { user, setUser, theme, setTheme, baseCurrency, setBaseCurrency, language, setLanguage, addAuditLog, deleteAccount, setIsAuthModalOpen, setAuthModalMode } = useApp();
   const [success, setSuccess] = useState(false);
   const [currencyLoading, setCurrencyLoading] = useState(false);
   const [currencyMsg, setCurrencyMsg] = useState('');
   const [avatarPreview, setAvatarPreview] = useState<string>(user.avatarUrl || '');
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteEmail, setDeleteEmail] = useState('');
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirmChecked, setDeleteConfirmChecked] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+
+  const handleDeleteAccountSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleteError('');
+    if (!deleteConfirmChecked) {
+      setDeleteError('Please check the confirmation box to acknowledge permanent account deletion.');
+      return;
+    }
+    if (deleteEmail.trim().toLowerCase() !== user.email.toLowerCase()) {
+      setDeleteError('The email address entered does not match the currently authenticated account.');
+      return;
+    }
+
+    setIsDeleting(true);
+    setTimeout(() => {
+      const res = deleteAccount(deleteEmail, deletePassword);
+      setIsDeleting(false);
+      if (res.success) {
+        setDeleteSuccess(true);
+        setTimeout(() => {
+          setShowDeleteModal(false);
+          setIsAuthModalOpen(true);
+          setAuthModalMode('signin');
+        }, 2000);
+      } else {
+        setDeleteError(res.error || 'Failed to delete account.');
+      }
+    }, 800);
+  };
 
   const handleCurrencyChange = (newCurr: BaseCurrency) => {
     setCurrencyLoading(true);
@@ -269,8 +306,131 @@ export const SettingsView: React.FC = () => {
               <option value="ja">日本語</option>
             </select>
           </div>
+
+          {/* Delete Account Permanently Section */}
+          <div className="bg-rose-950/20 p-5 rounded-xl border border-rose-900/40 space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div>
+                <h3 className="text-sm font-bold text-rose-400 flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-400" />
+                  <span>Delete Account Permanently</span>
+                </h3>
+                <p className="text-xs text-rose-200/70 mt-0.5">Permanently delete your exchange profile, institutional credentials, balances, and transaction history.</p>
+              </div>
+              <button
+                onClick={() => {
+                  setDeleteEmail('');
+                  setDeletePassword('');
+                  setDeleteConfirmChecked(false);
+                  setDeleteError('');
+                  setDeleteSuccess(false);
+                  setShowDeleteModal(true);
+                }}
+                className="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-rose-600/30 flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Delete Account Permanently</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-slate-900 border border-rose-500/40 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5 text-rose-400">
+                <AlertTriangle className="w-6 h-6 animate-pulse" />
+                <h2 className="text-lg font-bold">Delete Account Permanently</h2>
+              </div>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {deleteSuccess ? (
+              <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 p-4 rounded-xl text-xs font-bold text-center space-y-2">
+                <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-400" />
+                <p className="text-sm">“Your account has been permanently deleted successfully.”</p>
+                <p className="text-[11px] text-slate-300">Redirecting to sign-in screen...</p>
+              </div>
+            ) : (
+              <form onSubmit={handleDeleteAccountSubmit} className="space-y-4">
+                <div className="bg-rose-500/10 border border-rose-500/30 p-3.5 rounded-xl text-xs text-rose-200 leading-relaxed space-y-1">
+                  <p className="font-bold">Warning: This action is permanent and cannot be undone.</p>
+                  <p className="text-[11px] opacity-90">All associated personal records, wallet balances, trading history, and institutional profile data will be permanently destroyed from the exchange servers and local storage.</p>
+                </div>
+
+                {deleteError && (
+                  <div className="bg-rose-500/20 border border-rose-500/40 text-rose-300 p-3 rounded-xl text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                    <span>{deleteError}</span>
+                  </div>
+                )}
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-slate-400 uppercase">Registered Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    value={deleteEmail}
+                    onChange={(e) => setDeleteEmail(e.target.value)}
+                    placeholder="Enter your registered email"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-rose-500 font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-slate-400 uppercase">Account Password</label>
+                  <input
+                    type="password"
+                    required
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Enter your account password"
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-rose-500 font-mono"
+                  />
+                </div>
+
+                <div className="flex items-start gap-2 pt-1">
+                  <input
+                    type="checkbox"
+                    id="confirmDelete"
+                    checked={deleteConfirmChecked}
+                    onChange={(e) => setDeleteConfirmChecked(e.target.checked)}
+                    className="mt-0.5 rounded border-slate-800 bg-slate-950 text-rose-600 focus:ring-rose-500"
+                  />
+                  <label htmlFor="confirmDelete" className="text-xs text-slate-300 cursor-pointer select-none">
+                    I confirm that I want to permanently delete my account and understand that all data will be destroyed forever.
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteModal(false)}
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isDeleting || !deleteConfirmChecked}
+                    className="px-5 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-rose-600/30 flex items-center gap-2"
+                  >
+                    {isDeleting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    <span>Permanently Delete Account</span>
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

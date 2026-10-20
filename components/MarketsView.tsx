@@ -2,13 +2,35 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '@/lib/store';
-import { Search, Star, TrendingUp, TrendingDown, ArrowUpDown, ExternalLink } from 'lucide-react';
+import { Search, Star, TrendingUp, TrendingDown, ArrowUpDown, ExternalLink, Globe } from 'lucide-react';
 import { CryptoAsset } from '@/types';
 import { INITIAL_ASSETS } from '@/lib/mockData';
+import { AssetLogo } from '@/components/AssetLogo';
 
 const CATEGORIES = [
   'All', 'Favorites', 'Hot', 'Trending', 'Top Market Cap', 
-  'DeFi', 'AI Tokens', 'Layer 1', 'Layer 2', 'Meme Coins', 'Stablecoins', 'RWA', 'TradFi'
+  'DeFi', 'AI Tokens', 'Layer 1', 'Layer 2', 'Meme Coins', 'Stablecoins', 'RWA', 'TradFi', 'Global Equities'
+];
+
+interface GlobalEquityItem {
+  symbol: string;
+  name: string;
+  priceUSD: number;
+  change24h: number;
+  volume24h: string;
+  marketCap: string;
+  status: 'OPEN' | 'CLOSED';
+}
+
+const GLOBAL_EQUITIES: GlobalEquityItem[] = [
+  { symbol: 'NVDA', name: 'NVIDIA Corporation', priceUSD: 128.50, change24h: 3.45, volume24h: '$48.2B', marketCap: '$3.15T', status: 'OPEN' },
+  { symbol: 'AAPL', name: 'Apple Inc.', priceUSD: 224.20, change24h: 0.85, volume24h: '$32.1B', marketCap: '$3.42T', status: 'OPEN' },
+  { symbol: 'GOOGL', name: 'Alphabet Inc.', priceUSD: 178.90, change24h: -0.40, volume24h: '$21.8B', marketCap: '$2.21T', status: 'OPEN' },
+  { symbol: 'MSFT', name: 'Microsoft Corporation', priceUSD: 448.10, change24h: 1.15, volume24h: '$26.4B', marketCap: '$3.34T', status: 'OPEN' },
+  { symbol: 'AMZN', name: 'Amazon.com, Inc.', priceUSD: 186.50, change24h: 2.10, volume24h: '$24.9B', marketCap: '$1.94T', status: 'OPEN' },
+  { symbol: 'TSM', name: 'Taiwan Semiconductor Mfg.', priceUSD: 172.40, change24h: 4.20, volume24h: '$19.5B', marketCap: '$894.5B', status: 'OPEN' },
+  { symbol: 'SPCX', name: 'SpaceX (Private Institutional Valuation)', priceUSD: 345.00, change24h: 1.80, volume24h: '$4.2B', marketCap: '$210.0B', status: 'PRIVATE / CLOSED' },
+  { symbol: 'META', name: 'Meta Platforms, Inc.', priceUSD: 512.30, change24h: 2.65, volume24h: '$28.7B', marketCap: '$1.31T', status: 'OPEN' },
 ];
 
 export const MarketsView: React.FC = () => {
@@ -16,8 +38,8 @@ export const MarketsView: React.FC = () => {
   const [assets, setAssets] = useState<CryptoAsset[]>(INITIAL_ASSETS);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [favorites, setFavorites] = useState<string[]>(['bitcoin', 'ethereum', 'solana']);
-  const [apiStatus, setApiStatus] = useState<{ status: string; source: string }>({ status: 'LIVE', source: 'CoinGecko API' });
+  const [favorites, setFavorites] = useState<string[]>(['bitcoin', 'ethereum', 'solana', 'nvda', 'aapl']);
+  const [apiStatus, setApiStatus] = useState<{ status: string; source: string }>({ status: 'LIVE', source: 'CoinGecko & Institutional Feed' });
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -36,6 +58,8 @@ export const MarketsView: React.FC = () => {
       }
     }
     fetchMarketData();
+    const interval = setInterval(fetchMarketData, 30000); // 30s refresh interval
+    return () => clearInterval(interval);
   }, []);
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
@@ -46,23 +70,28 @@ export const MarketsView: React.FC = () => {
   const filteredAssets = assets.filter(asset => {
     const matchesSearch = asset.name.toLowerCase().includes(searchQuery.toLowerCase()) || asset.symbol.toLowerCase().includes(searchQuery.toLowerCase());
     if (selectedCategory === 'Favorites') return matchesSearch && favorites.includes(asset.id);
+    if (selectedCategory === 'Global Equities') return false; // Handled separately or in its section
     if (selectedCategory === 'All') return matchesSearch;
     return matchesSearch && asset.category === selectedCategory;
   });
+
+  const filteredEquities = GLOBAL_EQUITIES.filter(eq => 
+    eq.name.toLowerCase().includes(searchQuery.toLowerCase()) || eq.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-6 pb-12 animate-fadeIn">
       {/* Header & API Status */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Institutional Markets</h1>
-          <p className="text-xs text-slate-400 mt-1">Real-time cryptocurrency asset prices, volume, and depth data.</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Institutional Markets & Global Equities</h1>
+          <p className="text-xs text-slate-400 mt-1">Real-time cryptocurrency asset prices, volume, and tier-1 global equity feeds.</p>
         </div>
 
         <div className="flex items-center gap-3">
           <div className="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs">
             <span className={`w-2 h-2 rounded-full ${apiStatus.status === 'LIVE' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></span>
-            <span className="text-slate-300 font-mono">Status: <strong className="text-white">{apiStatus.status}</strong> ({apiStatus.source})</span>
+            <span className="text-slate-300 font-mono">Feed: <strong className="text-white">{apiStatus.status}</strong> ({apiStatus.source})</span>
           </div>
         </div>
       </div>
@@ -91,7 +120,7 @@ export const MarketsView: React.FC = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input
             type="text"
-            placeholder="Search coin or symbol..."
+            placeholder="Search coin, symbol, or equity..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
@@ -99,93 +128,186 @@ export const MarketsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Markets Table */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-800 text-[11px] font-mono text-slate-400 bg-slate-950/50 uppercase">
-                <th className="py-3.5 px-4">Asset</th>
-                <th className="py-3.5 px-4">Price (USD)</th>
-                <th className="py-3.5 px-4">1H Change</th>
-                <th className="py-3.5 px-4">24H Change</th>
-                <th className="py-3.5 px-4">7D Change</th>
-                <th className="py-3.5 px-4">24H Volume</th>
-                <th className="py-3.5 px-4">Market Cap</th>
-                <th className="py-3.5 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/60 text-xs font-medium text-slate-200">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-500 font-mono">Loading real-time institutional feed...</td>
-                </tr>
-              ) : filteredAssets.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-500 font-mono">No matching crypto assets found.</td>
-                </tr>
-              ) : (
-                filteredAssets.map(asset => {
-                  const isFav = favorites.includes(asset.id);
-                  return (
-                    <tr 
-                      key={asset.id} 
-                      onClick={() => setActiveTab('trading')}
-                      className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
-                    >
-                      <td className="py-3.5 px-4 flex items-center gap-3">
-                        <button onClick={(e) => toggleFavorite(asset.id, e)} className="text-slate-600 hover:text-amber-400">
-                          <Star className={`w-4 h-4 ${isFav ? 'fill-amber-400 text-amber-400' : ''}`} />
-                        </button>
-                        <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 font-bold flex items-center justify-center font-mono text-xs">
-                          {asset.symbol.slice(0, 3)}
-                        </div>
-                        <div>
-                          <p className="font-bold text-white">{asset.name}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{asset.symbol}</p>
-                        </div>
-                      </td>
+      {/* GLOBAL EQUITIES SECTION */}
+      {(selectedCategory === 'All' || selectedCategory === 'Global Equities' || selectedCategory === 'TradFi') && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <Globe className="w-5 h-5 text-blue-400" />
+              <span>GLOBAL EQUITIES</span>
+            </h2>
+            <span className="text-xs text-slate-400 font-mono">Tier-1 Institutional Stock Exchange Listings</span>
+          </div>
 
-                      <td className="py-3.5 px-4 font-mono font-bold text-white">
-                        ${asset.priceUSD >= 1 ? asset.priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : asset.priceUSD.toFixed(6)}
-                      </td>
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-800 text-[11px] font-mono text-slate-400 bg-slate-950/50 uppercase">
+                    <th className="py-3.5 px-4">Company & Symbol</th>
+                    <th className="py-3.5 px-4">Price (USD)</th>
+                    <th className="py-3.5 px-4">24H Change</th>
+                    <th className="py-3.5 px-4">24H Volume</th>
+                    <th className="py-3.5 px-4">Market Cap</th>
+                    <th className="py-3.5 px-4">Market Status</th>
+                    <th className="py-3.5 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 text-xs font-medium text-slate-200">
+                  {filteredEquities.map(eq => {
+                    const isFav = favorites.includes(eq.symbol.toLowerCase());
+                    return (
+                      <tr 
+                        key={eq.symbol} 
+                        onClick={() => setActiveTab('trading')}
+                        className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                      >
+                        <td className="py-3.5 px-4 flex items-center gap-3">
+                          <button onClick={(e) => toggleFavorite(eq.symbol.toLowerCase(), e)} className="text-slate-600 hover:text-amber-400">
+                            <Star className={`w-4 h-4 ${isFav ? 'fill-amber-400 text-amber-400' : ''}`} />
+                          </button>
+                          <AssetLogo symbol={eq.symbol} name={eq.name} size="md" />
+                          <div>
+                            <p className="font-bold text-white">{eq.name}</p>
+                            <p className="text-[10px] text-slate-400 font-mono">{eq.symbol} • NYSE / NASDAQ</p>
+                          </div>
+                        </td>
 
-                      <td className={`py-3.5 px-4 font-mono ${asset.change1h >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {asset.change1h >= 0 ? '+' : ''}{asset.change1h}%
-                      </td>
+                        <td className="py-3.5 px-4 font-mono font-bold text-white">
+                          ${eq.priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
 
-                      <td className={`py-3.5 px-4 font-mono font-bold ${asset.change24h >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {asset.change24h >= 0 ? '+' : ''}{asset.change24h}%
-                      </td>
+                        <td className={`py-3.5 px-4 font-mono font-bold flex items-center gap-1 mt-3 ${eq.change24h >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {eq.change24h >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                          <span>{eq.change24h >= 0 ? '+' : ''}{eq.change24h}%</span>
+                        </td>
 
-                      <td className={`py-3.5 px-4 font-mono ${asset.change7d >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {asset.change7d >= 0 ? '+' : ''}{asset.change7d}%
-                      </td>
+                        <td className="py-3.5 px-4 font-mono text-slate-300">
+                          {eq.volume24h}
+                        </td>
 
-                      <td className="py-3.5 px-4 font-mono text-slate-300">
-                        ${(asset.volume24h / 1e6).toLocaleString('en-US', { maximumFractionDigits: 1 })}M
-                      </td>
+                        <td className="py-3.5 px-4 font-mono text-slate-300">
+                          {eq.marketCap}
+                        </td>
 
-                      <td className="py-3.5 px-4 font-mono text-slate-300">
-                        ${(asset.marketCap / 1e9).toLocaleString('en-US', { maximumFractionDigits: 2 })}B
-                      </td>
+                        <td className="py-3.5 px-4">
+                          <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold">
+                            {eq.status}
+                          </span>
+                        </td>
 
-                      <td className="py-3.5 px-4 text-right">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setActiveTab('trading'); }}
-                          className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1.5 rounded-xl font-semibold transition-colors"
-                        >
-                          Trade
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                        <td className="py-3.5 px-4 text-right">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setActiveTab('trading'); }}
+                            className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1.5 rounded-xl font-semibold transition-colors"
+                          >
+                            Trade Equity
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* CRYPTOCURRENCY MARKETS TABLE */}
+      {selectedCategory !== 'Global Equities' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white">Cryptocurrency Spot & Derivatives</h2>
+            <span className="text-xs text-slate-400 font-mono">Verified 20+ Digital Assets</span>
+          </div>
+
+          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl shadow-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-800 text-[11px] font-mono text-slate-400 bg-slate-950/50 uppercase">
+                    <th className="py-3.5 px-4">Asset</th>
+                    <th className="py-3.5 px-4">Price (USD)</th>
+                    <th className="py-3.5 px-4">1H Change</th>
+                    <th className="py-3.5 px-4">24H Change</th>
+                    <th className="py-3.5 px-4">7D Change</th>
+                    <th className="py-3.5 px-4">24H Volume</th>
+                    <th className="py-3.5 px-4">Market Cap</th>
+                    <th className="py-3.5 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 text-xs font-medium text-slate-200">
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={8} className="py-8 text-center text-slate-500 font-mono">Loading real-time institutional feed...</td>
+                    </tr>
+                  ) : filteredAssets.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="py-8 text-center text-slate-500 font-mono">No matching crypto assets found.</td>
+                    </tr>
+                  ) : (
+                    filteredAssets.map(asset => {
+                      const isFav = favorites.includes(asset.id);
+                      return (
+                        <tr 
+                          key={asset.id} 
+                          onClick={() => setActiveTab('trading')}
+                          className="hover:bg-slate-800/50 cursor-pointer transition-colors group"
+                        >
+                          <td className="py-3.5 px-4 flex items-center gap-3">
+                            <button onClick={(e) => toggleFavorite(asset.id, e)} className="text-slate-600 hover:text-amber-400">
+                              <Star className={`w-4 h-4 ${isFav ? 'fill-amber-400 text-amber-400' : ''}`} />
+                            </button>
+                            <AssetLogo symbol={asset.symbol} name={asset.name} size="md" />
+                            <div>
+                              <p className="font-bold text-white">{asset.name}</p>
+                              <p className="text-[10px] text-slate-400 font-mono">{asset.symbol}</p>
+                            </div>
+                          </td>
+
+                          <td className="py-3.5 px-4 font-mono font-bold text-white">
+                            ${asset.priceUSD >= 1 ? asset.priceUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : asset.priceUSD.toFixed(6)}
+                          </td>
+
+                          <td className={`py-3.5 px-4 font-mono ${asset.change1h >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            {asset.change1h >= 0 ? '+' : ''}{asset.change1h}%
+                          </td>
+
+                          <td className={`py-3.5 px-4 font-mono font-bold ${asset.change24h >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            {asset.change24h >= 0 ? '+' : ''}{asset.change24h}%
+                          </td>
+
+                          <td className={`py-3.5 px-4 font-mono ${asset.change7d >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            {asset.change7d >= 0 ? '+' : ''}{asset.change7d}%
+                          </td>
+
+                          <td className="py-3.5 px-4 font-mono text-slate-300">
+                            ${(asset.volume24h / 1e6).toLocaleString('en-US', { maximumFractionDigits: 1 })}M
+                          </td>
+
+                          <td className="py-3.5 px-4 font-mono text-slate-300">
+                            ${(asset.marketCap / 1e9).toLocaleString('en-US', { maximumFractionDigits: 2 })}B
+                          </td>
+
+                          <td className="py-3.5 px-4 text-right">
+                            <button 
+                              onClick={(e) => { e.stopPropagation(); setActiveTab('trading'); }}
+                              className="bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white px-3 py-1.5 rounded-xl font-semibold transition-colors"
+                            >
+                              Trade
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { INITIAL_ASSETS } from '@/lib/mockData';
+import { AssetLogo } from '@/components/AssetLogo';
 
 const PORTFOLIO_HISTORY_RANGES: Record<string, { date: string; value: number }[]> = {
   '24H': [
@@ -293,7 +294,7 @@ export const DashboardView: React.FC = () => {
                   <div key={b.assetSymbol} className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-semibold text-white flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center font-mono text-[10px] text-blue-400">{b.icon}</span>
+                        <AssetLogo symbol={b.assetSymbol} name={b.assetName} size="sm" />
                         {b.assetName}
                       </span>
                       <span className="font-mono text-slate-300">{percentage}%</span>
@@ -364,9 +365,7 @@ export const DashboardView: React.FC = () => {
             {INITIAL_ASSETS.slice(0, 4).map(asset => (
               <div key={asset.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/80">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold font-mono text-xs">
-                    {asset.symbol}
-                  </div>
+                  <AssetLogo symbol={asset.symbol} name={asset.name} size="md" />
                   <div>
                     <p className="text-xs font-semibold text-white">{asset.name}</p>
                     <p className="text-[10px] text-slate-400 font-mono">${asset.priceUSD.toLocaleString()}</p>

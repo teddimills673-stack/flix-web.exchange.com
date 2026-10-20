@@ -207,9 +207,20 @@ export const AuthModal: React.FC = () => {
     
     // Check Owner login
     if (trimmedEmail === 'richardshannon901@gmail.com') {
+      try {
+        const regStr = localStorage.getItem('okxflix_registered_users');
+        const registeredUsers = regStr ? JSON.parse(regStr) : {};
+        if (regStr && registeredUsers['richardshannon901@gmail.com'] === undefined && localStorage.getItem('okxflix_user_USR-8F42-91KD') === null) {
+          setFailedAttempts(prev => prev + 1);
+          setErrorMessage('Account not found or no longer available. This account may have been permanently deleted. Please check your details or create a new account.');
+          addAuditLog('USER_SIGN_IN_FAILED', `Failed sign-in attempt for deleted owner account`, 'FAILED');
+          return;
+        }
+      } catch (e) {}
+
       if (password !== 'Risk55yy@@$') {
         setFailedAttempts(prev => prev + 1);
-        setErrorMessage('Invalid security credentials.');
+        setErrorMessage('Account not found or no longer available. This account may have been permanently deleted. Please check your details or create a new account.');
         addAuditLog('USER_SIGN_IN_FAILED', `Failed sign-in attempt`, 'FAILED');
         return;
       }
@@ -258,14 +269,14 @@ export const AuthModal: React.FC = () => {
 
       if (!foundUser || foundUser.password !== password) {
         setFailedAttempts(prev => prev + 1);
-        setErrorMessage('Invalid institutional credentials or security token mismatch.');
+        setErrorMessage('Account not found or no longer available. This account may have been permanently deleted. Please check your details or create a new account.');
         addAuditLog('USER_SIGN_IN_FAILED', `Failed sign-in attempt for ${email}`, 'FAILED');
         return;
       }
 
       startVerification(foundUser.profile, false);
     } catch (err) {
-      setErrorMessage('Authentication error occurred.');
+      setErrorMessage('Account not found or no longer available. This account may have been permanently deleted. Please check your details or create a new account.');
     }
   };
 

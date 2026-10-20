@@ -6,6 +6,7 @@ import { Wallet, ArrowDownLeft, ArrowUpRight, Copy, CheckCircle2, ShieldAlert, P
 import { TransactionRecord } from '@/types';
 import { TopUpModal } from '@/components/TopUpModal';
 import { SendBtcModal } from '@/components/SendBtcModal';
+import { AssetLogo } from '@/components/AssetLogo';
 
 export const WalletView: React.FC = () => {
   const { balances, setBalances, transactions, setTransactions, adminBtcAddress, triggerDeactivationLock, formatMoney, user, checkAccountActive, setIsActivationModalOpen } = useApp();
@@ -201,9 +202,7 @@ export const WalletView: React.FC = () => {
           <div key={b.assetSymbol} className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 font-bold flex items-center justify-center text-lg font-mono">
-                  {b.icon}
-                </div>
+                <AssetLogo symbol={b.assetSymbol} name={b.assetName} size="md" />
                 <div>
                   <h3 className="text-sm font-bold text-white">{b.assetName}</h3>
                   <p className="text-xs text-slate-400 font-mono">{b.assetSymbol}</p>

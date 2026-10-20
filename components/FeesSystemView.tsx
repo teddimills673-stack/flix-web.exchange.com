@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '@/lib/store';
-import { Lock, ShieldAlert, CheckCircle2, AlertTriangle, RefreshCw, Save, Edit, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Lock, ShieldAlert, CheckCircle2, AlertTriangle, RefreshCw, Save, Edit, ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import { FeeConfiguration } from '@/types';
 
 export const FeesSystemView: React.FC = () => {
@@ -20,6 +20,51 @@ export const FeesSystemView: React.FC = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedConfig, setEditedConfig] = useState<FeeConfiguration>(feeConfiguration);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string>('');
+
+  // POWER SAVE state
+  const [powerSaveState, setPowerSaveState] = useState<'blue' | 'red'>('blue');
+  const [isPowerSaving, setIsPowerSaving] = useState<boolean>(false);
+  const [powerSaveMsg, setPowerSaveMsg] = useState<string>('');
+
+  useEffect(() => {
+    fetch('/api/admin/xrwa')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.feeConfiguration) {
+          updateFeeConfiguration(data.feeConfiguration);
+          setPowerSaveState('red');
+          setPowerSaveMsg('POWER SAVE ACTIVE — ALL CHANGES SAVED SUCCESSFULLY');
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handlePowerSave = async () => {
+    setIsPowerSaving(true);
+    setPowerSaveMsg('');
+    try {
+      const res = await fetch('/api/admin/xrwa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feeConfiguration, updatedAt: Date.now(), updatedBy: user.email })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPowerSaveState('red');
+        setPowerSaveMsg('POWER SAVE ACTIVE — ALL CHANGES SAVED SUCCESSFULLY');
+        addAuditLog('X_RWA_POWER_SAVE', 'Owner activated POWER SAVE: X-RWA configuration permanently saved and synchronized across all devices.', 'SUCCESS');
+      } else {
+        setPowerSaveState('blue');
+        setPowerSaveMsg('Failed to save configuration. Please try again.');
+        addAuditLog('X_RWA_POWER_SAVE_FAILED', `Failed to save X-RWA configuration: ${data.error || 'Unknown'}`, 'FAILED');
+      }
+    } catch (err: any) {
+      setPowerSaveState('blue');
+      setPowerSaveMsg('Network error during save. Please retry.');
+    } finally {
+      setIsPowerSaving(false);
+    }
+  };
 
   // Sub-tab state & Change Password state
   const [activeSubTab, setActiveSubTab] = useState<'fees' | 'password'>('fees');
@@ -124,6 +169,8 @@ export const FeesSystemView: React.FC = () => {
     };
     updateFeeConfiguration(updated);
     setIsEditing(false);
+    setPowerSaveState('blue');
+    setPowerSaveMsg('Unsaved changes ready. Click POWER SAVE to permanently save across all devices.');
     setSaveSuccessMessage('Fee configuration successfully updated. Active warning synchronized with Withdraw Funds.');
     setTimeout(() => setSaveSuccessMessage(''), 4000);
   };
@@ -137,6 +184,8 @@ export const FeesSystemView: React.FC = () => {
     if (confirm('Are you sure you want to reset all withdrawal warning configurations to default values?')) {
       resetFeeConfiguration();
       setEditedConfig(feeConfiguration);
+      setPowerSaveState('blue');
+      setPowerSaveMsg('Configuration reset. Click POWER SAVE to save changes.');
       setSaveSuccessMessage('Fee configuration reset to default values.');
       setTimeout(() => setSaveSuccessMessage(''), 4000);
     }
@@ -537,6 +586,32 @@ export const FeesSystemView: React.FC = () => {
           </div>
         </>
       )}
+
+      {/* Floating Action Button (FAB) for POWER SAVE */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+        {powerSaveMsg && (
+          <div className="bg-slate-900 border border-slate-800 text-slate-200 px-4 py-2 rounded-xl text-xs font-mono shadow-2xl animate-fadeIn max-w-xs text-right">
+            {powerSaveMsg}
+          </div>
+        )}
+        <button
+          onClick={handlePowerSave}
+          disabled={isPowerSaving}
+          className={`px-6 py-4 rounded-2xl text-sm font-black tracking-wider uppercase shadow-2xl transition-all flex items-center gap-3 ${
+            powerSaveState === 'red'
+              ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-600/40 ring-4 ring-red-600/20'
+              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/40 ring-4 ring-blue-600/20'
+          }`}
+        >
+          {isPowerSaving ? (
+            <RefreshCw className="w-5 h-5 animate-spin" />
+          ) : (
+            <Save className="w-5 h-5" />
+          )}
+          <span>{powerSaveState === 'red' ? 'POWER SAVE ACTIVE' : 'POWER SAVE'}</span>
+        </button>
+      </div>
     </div>
   );
 };
+

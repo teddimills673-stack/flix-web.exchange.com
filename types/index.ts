@@ -17,7 +17,7 @@ export type TabType =
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type BaseCurrency = 
-  | 'USD' | 'EUR' | 'GBP' | 'JPY' | 'CHF' | 'CAD' | 'AUD' | 'NZD' | 'CNY' | 'HKD' 
+  | 'USDT' | 'USD' | 'EUR' | 'GBP' | 'JPY' | 'CHF' | 'CAD' | 'AUD' | 'NZD' | 'CNY' | 'HKD' 
   | 'SGD' | 'SEK' | 'NOK' | 'DKK' | 'PLN' | 'CZK' | 'HUF' | 'RON' | 'BGN' | 'TRY' 
   | 'ILS' | 'AED' | 'SAR' | 'QAR' | 'KWD' | 'BHD' | 'OMR' | 'JOD' | 'EGP' | 'ZAR' 
   | 'NGN' | 'GHS' | 'KES' | 'UGX' | 'TZS' | 'MAD' | 'INR' | 'PKR' | 'BDT' | 'THB' 

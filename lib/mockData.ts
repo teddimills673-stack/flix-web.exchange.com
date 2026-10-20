@@ -2,22 +2,22 @@ import { CryptoAsset, WalletBalance, TransactionRecord, TradingOrder, PriceAlert
 
 export const INITIAL_USER: UserProfile = {
   id: 'USR-8F42-91KD',
-  username: 'AlexMorgan_OKX',
-  email: 'alex.morgan@institutional-demo.okxflix.io',
-  avatarUrl: '',
+  username: 'Oflix Exchange Owner',
+  email: 'oflixexchange@gmail.com',
+  avatarUrl: '/owner-avatar.png',
   country: 'United States',
-  baseCurrency: 'USD',
+  baseCurrency: 'USDT',
   language: 'en',
   timeZone: 'America/New_York',
   createdAt: '2012-04-14T08:30:00Z',
-  isVerified: false,
-  securityScore: 92,
-  role: 'super_admin',
+  isVerified: true,
+  securityScore: 100,
+  role: 'owner',
   twoFactorEnabled: true,
   passkeyEnabled: true,
   biometricEnabled: true,
   antiPhishingCode: 'OKX-9982-FLIX',
-  accountStatus: 'DORMANT', // Institutional account status
+  accountStatus: 'ACTIVE', // Institutional owner account status
   privacyMode: false,
 };
 
