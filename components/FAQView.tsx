@@ -31,6 +31,19 @@ export const FAQView: React.FC = () => {
     setOpenIds(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  const openTawkChat = () => {
+    if (typeof window !== 'undefined' && (window as any).Tawk_API) {
+      if (typeof (window as any).Tawk_API.showWidget === 'function') {
+        (window as any).Tawk_API.showWidget();
+      }
+      if (typeof (window as any).Tawk_API.maximize === 'function') {
+        (window as any).Tawk_API.maximize();
+      }
+    } else {
+      window.open('https://embed.tawk.to/6ad6e53b59640134c789eb9b/default', '_blank');
+    }
+  };
+
   const faqItems: FaqItem[] = useMemo(() => [
     {
       id: 'faq-earn-1',
@@ -244,12 +257,21 @@ export const FAQView: React.FC = () => {
             <p className="text-xs text-slate-300 mt-1">{getTranslation(language, 'faq.supportPrompt')}</p>
           </div>
         </div>
-        <button
-          onClick={() => setActiveTab('support')}
-          className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-600/30 transition-all shrink-0"
-        >
-          {getTranslation(language, 'faq.contactSupport')}
-        </button>
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            onClick={() => setActiveTab('support')}
+            className="bg-slate-800 hover:bg-slate-700 text-white px-5 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all shrink-0 border border-slate-700"
+          >
+            {getTranslation(language, 'faq.contactSupport')}
+          </button>
+          <button
+            onClick={openTawkChat}
+            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-blue-600/30 transition-all shrink-0 flex items-center gap-2"
+          >
+            <Headphones className="w-4 h-4" />
+            <span>Open Live Chat</span>
+          </button>
+        </div>
       </div>
     </div>
   );

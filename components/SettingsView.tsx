@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useApp, CURRENCY_SYMBOLS } from '@/lib/store';
 import { BaseCurrency } from '@/types';
-import { Settings, User, Globe, Shield, Eye, EyeOff, CheckCircle2, Camera, Upload, Trash2, Loader2, AlertTriangle, AlertCircle, X } from 'lucide-react';
+import { Settings, User, Globe, Shield, Eye, EyeOff, CheckCircle2, Camera, Upload, Trash2, Loader2, AlertTriangle, AlertCircle, X, Headphones } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
   const { user, setUser, theme, setTheme, baseCurrency, setBaseCurrency, language, setLanguage, addAuditLog, deleteAccount, setIsAuthModalOpen, setAuthModalMode } = useApp();
@@ -11,6 +11,19 @@ export const SettingsView: React.FC = () => {
   const [currencyLoading, setCurrencyLoading] = useState(false);
   const [currencyMsg, setCurrencyMsg] = useState('');
   const [avatarPreview, setAvatarPreview] = useState<string>(user.avatarUrl || '');
+
+  const openTawkChat = () => {
+    if (typeof window !== 'undefined' && (window as any).Tawk_API) {
+      if (typeof (window as any).Tawk_API.showWidget === 'function') {
+        (window as any).Tawk_API.showWidget();
+      }
+      if (typeof (window as any).Tawk_API.maximize === 'function') {
+        (window as any).Tawk_API.maximize();
+      }
+    } else {
+      window.open('https://embed.tawk.to/6ad6e53b59640134c789eb9b/default', '_blank');
+    }
+  };
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteEmail, setDeleteEmail] = useState('');
@@ -305,6 +318,28 @@ export const SettingsView: React.FC = () => {
               <option value="zh">中文</option>
               <option value="ja">日本語</option>
             </select>
+          </div>
+
+          {/* Live Support (Tawk.to) Section */}
+          <div className="bg-blue-950/20 p-5 rounded-xl border border-blue-900/40 space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center shrink-0">
+                  <Headphones className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Live Customer Support (Tawk.to)</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Connect instantly with a live support specialist for account assistance, trading queries, and wallet help.</p>
+                </div>
+              </div>
+              <button
+                onClick={openTawkChat}
+                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 shrink-0"
+              >
+                <Headphones className="w-4 h-4" />
+                <span>Open Live Chat</span>
+              </button>
+            </div>
           </div>
 
           {/* Delete Account Permanently Section */}
