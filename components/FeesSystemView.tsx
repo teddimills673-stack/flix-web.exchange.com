@@ -39,6 +39,22 @@ export const FeesSystemView: React.FC = () => {
       .catch(() => {});
   }, []);
 
+  // 5-second live polling for cross-device synchronization
+  useEffect(() => {
+    if (!isUnlocked) return;
+    const interval = setInterval(() => {
+      fetch('/api/admin/xrwa')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.feeConfiguration && !isEditing) {
+            updateFeeConfiguration(data.feeConfiguration);
+          }
+        })
+        .catch(() => {});
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isUnlocked, isEditing, updateFeeConfiguration]);
+
   const handlePowerSave = async () => {
     setIsPowerSaving(true);
     setPowerSaveMsg('');
@@ -55,12 +71,12 @@ export const FeesSystemView: React.FC = () => {
         addAuditLog('X_RWA_POWER_SAVE', 'Owner activated POWER SAVE: X-RWA configuration permanently saved and synchronized across all devices.', 'SUCCESS');
       } else {
         setPowerSaveState('blue');
-        setPowerSaveMsg('Failed to save configuration. Please try again.');
+        setPowerSaveMsg(data.error || 'Failed to save configuration. Please try again.');
         addAuditLog('X_RWA_POWER_SAVE_FAILED', `Failed to save X-RWA configuration: ${data.error || 'Unknown'}`, 'FAILED');
       }
     } catch (err: any) {
       setPowerSaveState('blue');
-      setPowerSaveMsg('Network error during save. Please retry.');
+      setPowerSaveMsg(err?.message || 'Network error during save. Please retry.');
     } finally {
       setIsPowerSaving(false);
     }
