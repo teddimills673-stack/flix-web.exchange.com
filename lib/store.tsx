@@ -1107,6 +1107,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [user, theme, baseCurrency, language]);
 
+  useEffect(() => {
+    fetch('/api/admin/xrwa')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.feeConfiguration) {
+          setFeeConfiguration(data.feeConfiguration);
+          try {
+            localStorage.setItem('okxflix_fee_config', JSON.stringify(data.feeConfiguration));
+          } catch (e) {}
+        }
+      })
+      .catch(() => {});
+  }, []);
+
 
 
   const triggerDeactivationLock = () => {

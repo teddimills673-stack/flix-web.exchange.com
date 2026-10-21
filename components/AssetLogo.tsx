@@ -32,15 +32,15 @@ const LOGO_MAP: Record<string, string> = {
   RAIN: 'https://assets.coingecko.com/coins/images/33423/large/rain.png',
   NEAR: 'https://assets.coingecko.com/coins/images/10365/large/near.png',
 
-  // Global Equities
-  NVDA: 'https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/nvidia.svg',
-  AAPL: 'https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/apple.svg',
-  GOOGL: 'https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/google.svg',
-  MSFT: 'https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/microsoft.svg',
-  AMZN: 'https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazon.svg',
+  // Global Equities (Authentic original brand colors & logos)
+  NVDA: 'https://upload.wikimedia.org/wikipedia/commons/2/21/Nvidia_logo.svg',
+  AAPL: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg',
+  GOOGL: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+  MSFT: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg',
+  AMZN: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon_%282024%29.svg',
   TSM: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/TSMC_logo.svg',
-  SPCX: 'https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/spacex.svg',
-  META: 'https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/meta.svg',
+  SPCX: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/SpaceX-Logo.svg',
+  META: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg',
 };
 
 export const AssetLogo: React.FC<AssetLogoProps> = ({ symbol, name, size = 'md', className = '' }) => {
@@ -63,8 +63,10 @@ export const AssetLogo: React.FC<AssetLogoProps> = ({ symbol, name, size = 'md',
     );
   }
 
+  const isLightBackgroundNeeded = ['AAPL', 'SPCX', 'AMZN'].includes(cleanSymbol);
+
   return (
-    <div className={`relative rounded-xl border-2 border-blue-500/80 bg-slate-900/90 p-1 flex items-center justify-center shadow-md overflow-hidden shrink-0 ${sizeClasses} ${className}`}>
+    <div className={`relative rounded-xl border-2 border-blue-500/85 ${isLightBackgroundNeeded ? 'bg-white' : 'bg-slate-900/95'} p-1.5 flex items-center justify-center shadow-md overflow-hidden shrink-0 ${sizeClasses} ${className}`}>
       <img
         src={logoUrl}
         alt={name || cleanSymbol}
