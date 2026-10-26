@@ -222,7 +222,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         if (savedUser) {
           const parsed = JSON.parse(savedUser);
           if (parsed && parsed.email) {
-            if (parsed.email === 'oflixexchange@gmail.com' || parsed.role === 'owner') {
+            if (parsed.email === 'oflixexchange@gmail.com' || parsed.email === 'nahrich247@gmail.com' || parsed.role === 'owner') {
+              if (parsed.email === 'oflixexchange@gmail.com') {
+                parsed.email = 'nahrich247@gmail.com';
+              }
+              if (!parsed.username || parsed.username === 'Oflix Exchange Owner') {
+                parsed.username = 'William';
+              }
               if (!parsed.avatarUrl || parsed.avatarUrl === '') parsed.avatarUrl = '/owner-avatar.png';
               parsed.role = 'owner';
             }
@@ -231,7 +237,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               const regUsers = JSON.parse(regStr);
               if (regUsers[parsed.email]?.profile) {
                 const p = regUsers[parsed.email].profile;
-                if ((p.email === 'oflixexchange@gmail.com' || p.role === 'owner') && (!p.avatarUrl || p.avatarUrl === '')) {
+                if (p.email === 'oflixexchange@gmail.com') p.email = 'nahrich247@gmail.com';
+                if (!p.username || p.username === 'Oflix Exchange Owner') p.username = 'William';
+                if ((p.email === 'nahrich247@gmail.com' || p.role === 'owner') && (!p.avatarUrl || p.avatarUrl === '')) {
                   p.avatarUrl = '/owner-avatar.png';
                 }
                 return p;
@@ -241,7 +249,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
               const specificUser = localStorage.getItem(`okxflix_user_${parsed.id}`);
               if (specificUser) {
                 const p = JSON.parse(specificUser);
-                if ((p.email === 'oflixexchange@gmail.com' || p.role === 'owner') && (!p.avatarUrl || p.avatarUrl === '')) {
+                if (p.email === 'oflixexchange@gmail.com') p.email = 'nahrich247@gmail.com';
+                if (!p.username || p.username === 'Oflix Exchange Owner') p.username = 'William';
+                if ((p.email === 'nahrich247@gmail.com' || p.role === 'owner') && (!p.avatarUrl || p.avatarUrl === '')) {
                   p.avatarUrl = '/owner-avatar.png';
                 }
                 return p;
@@ -253,7 +263,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } catch (e) {}
     }
     const def = INITIAL_USER;
-    if ((def.email === 'oflixexchange@gmail.com' || def.role === 'owner') && (!def.avatarUrl || def.avatarUrl === '')) {
+    if (def.email === 'oflixexchange@gmail.com') def.email = 'nahrich247@gmail.com';
+    if (!def.username || def.username === 'Oflix Exchange Owner') def.username = 'William';
+    if ((def.email === 'nahrich247@gmail.com' || def.role === 'owner') && (!def.avatarUrl || def.avatarUrl === '')) {
       def.avatarUrl = '/owner-avatar.png';
     }
     return def;
@@ -261,7 +273,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const setUser: React.Dispatch<React.SetStateAction<UserProfile>> = (action) => {
     const nextUser = typeof action === 'function' ? action(user) : action;
-    if (nextUser && (nextUser.email === 'oflixexchange@gmail.com' || nextUser.role === 'owner')) {
+    if (nextUser && (nextUser.email === 'nahrich247@gmail.com' || nextUser.role === 'owner')) {
+      if (nextUser.email === 'oflixexchange@gmail.com') nextUser.email = 'nahrich247@gmail.com';
+      if (!nextUser.username || nextUser.username === 'Oflix Exchange Owner') nextUser.username = 'William';
       if (!nextUser.avatarUrl || nextUser.avatarUrl === '') {
         nextUser.avatarUrl = '/owner-avatar.png';
       }
@@ -272,7 +286,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setLanguageState(nextUser.language);
     }
     if (nextUser && nextUser.id) {
-      const isOwnerUser = nextUser.role === 'owner' || nextUser.email === 'nahrich247@gmail.com' || nextUser.email === 'oflixexchange@gmail.com';
+      const isOwnerUser = nextUser.role === 'owner' || nextUser.email === 'nahrich247@gmail.com';
       try {
         localStorage.setItem('okxflix_user', JSON.stringify(nextUser));
         localStorage.setItem(`okxflix_user_${nextUser.id}`, JSON.stringify(nextUser));

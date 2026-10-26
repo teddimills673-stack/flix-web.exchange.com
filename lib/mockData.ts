@@ -2,8 +2,8 @@ import { CryptoAsset, WalletBalance, TransactionRecord, TradingOrder, PriceAlert
 
 export const INITIAL_USER: UserProfile = {
   id: 'USR-8F42-91KD',
-  username: 'Oflix Exchange Owner',
-  email: 'oflixexchange@gmail.com',
+  username: 'William',
+  email: 'nahrich247@gmail.com',
   avatarUrl: '/owner-avatar.png',
   country: 'United States',
   baseCurrency: 'USDT',
