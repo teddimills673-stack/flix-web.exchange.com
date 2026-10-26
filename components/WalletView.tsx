@@ -19,7 +19,7 @@ export const WalletView: React.FC = () => {
   const [withdrawAddress, setWithdrawAddress] = useState<string>('');
   const [copied, setCopied] = useState<boolean>(false);
 
-  const isOwner = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+  const isOwner = user.role === 'owner' || user.email === 'nahrich247@gmail.com';
 
   const ASSET_DEPOSIT_ADDRESSES: Record<string, string> = {
     BTC: '0x697638fe9a9b7b98556957090c165ce55dda2fc0',

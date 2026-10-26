@@ -72,7 +72,7 @@ export const Sidebar: React.FC = () => {
 
       <nav className="flex-1 overflow-y-auto p-3 space-y-1.5 custom-scrollbar">
         {NAV_ITEMS.map((item) => {
-          if ((item.id === 'admin' || item.id === 'fees-system') && user.role !== 'owner' && user.email !== 'richardshannon901@gmail.com') {
+          if ((item.id === 'admin' || item.id === 'fees-system') && user.role !== 'owner' && user.email !== 'nahrich247@gmail.com') {
             return null;
           }
           const Icon = item.icon;

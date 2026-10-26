@@ -8,7 +8,7 @@ import { FeeConfiguration } from '@/types';
 export const FeesSystemView: React.FC = () => {
   const { user, feeConfiguration, updateFeeConfiguration, resetFeeConfiguration, addAuditLog, changeOwnerPassword, t } = useApp();
 
-  const isOwner = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+  const isOwner = user.role === 'owner' || user.email === 'nahrich247@gmail.com';
 
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
   const [passwordInput, setPasswordInput] = useState<string>('');

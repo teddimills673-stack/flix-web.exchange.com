@@ -56,7 +56,7 @@ export const DashboardView: React.FC = () => {
   const { user, setUser, balances, transactions, convertCurrency, setActiveTab, triggerDeactivationLock, theme } = useApp();
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('30D');
 
-  const isOwner = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+  const isOwner = user.role === 'owner' || user.email === 'nahrich247@gmail.com';
 
   const totalPortfolioUSD = balances.reduce((acc, b) => acc + b.valueUSD, 0);
   const formattedPortfolio = convertCurrency(totalPortfolioUSD);

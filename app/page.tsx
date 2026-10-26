@@ -35,7 +35,7 @@ const MainContent: React.FC = () => {
   const { activeTab, setActiveTab, isAuthenticated, user } = useApp();
 
   React.useEffect(() => {
-    if ((activeTab === 'admin' || activeTab === 'fees-system') && user.role !== 'owner' && user.email !== 'richardshannon901@gmail.com') {
+    if ((activeTab === 'admin' || activeTab === 'fees-system') && user.role !== 'owner' && user.email !== 'nahrich247@gmail.com') {
       setActiveTab('dashboard');
     }
   }, [activeTab, user.role, user.email, setActiveTab]);

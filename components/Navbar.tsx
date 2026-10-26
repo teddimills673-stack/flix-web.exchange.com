@@ -343,7 +343,7 @@ export const Navbar: React.FC = () => {
             ].map((section) => {
               const sectionItems = NAV_ITEMS.filter(item => {
                 if (!section.ids.includes(item.id)) return false;
-                if ((item.id === 'admin' || item.id === 'fees-system') && user.role !== 'owner' && user.email !== 'richardshannon901@gmail.com') {
+                if ((item.id === 'admin' || item.id === 'fees-system') && user.role !== 'owner' && user.email !== 'nahrich247@gmail.com') {
                   return false;
                 }
                 return true;

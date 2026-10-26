@@ -272,7 +272,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setLanguageState(nextUser.language);
     }
     if (nextUser && nextUser.id) {
-      const isOwnerUser = nextUser.role === 'owner' || nextUser.email === 'richardshannon901@gmail.com' || nextUser.email === 'oflixexchange@gmail.com';
+      const isOwnerUser = nextUser.role === 'owner' || nextUser.email === 'nahrich247@gmail.com' || nextUser.email === 'oflixexchange@gmail.com';
       try {
         localStorage.setItem('okxflix_user', JSON.stringify(nextUser));
         localStorage.setItem(`okxflix_user_${nextUser.id}`, JSON.stringify(nextUser));
@@ -375,7 +375,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (e) {}
   };
 
-  const isOwner = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+  const isOwner = user.role === 'owner' || user.email === 'nahrich247@gmail.com';
 
   const ZERO_BALANCES: WalletBalance[] = [
     { assetSymbol: 'BTC', assetName: 'Bitcoin', available: 0, locked: 0, valueUSD: 0, icon: '₿' },
@@ -392,7 +392,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const savedUser = localStorage.getItem('okxflix_user');
         if (token && savedUser) {
           const parsedUser = JSON.parse(savedUser);
-          const isOwnerUser = parsedUser.role === 'owner' || parsedUser.email === 'richardshannon901@gmail.com';
+          const isOwnerUser = parsedUser.role === 'owner' || parsedUser.email === 'nahrich247@gmail.com';
           const savedBalances = localStorage.getItem(`okxflix_balances_${parsedUser.id}`);
           if (savedBalances) {
             const parsedB = JSON.parse(savedBalances);
@@ -416,7 +416,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const savedUser = localStorage.getItem('okxflix_user');
         if (token && savedUser) {
           const parsedUser = JSON.parse(savedUser);
-          const isOwnerUser = parsedUser.role === 'owner' || parsedUser.email === 'richardshannon901@gmail.com';
+          const isOwnerUser = parsedUser.role === 'owner' || parsedUser.email === 'nahrich247@gmail.com';
           const savedTx = localStorage.getItem(`okxflix_transactions_${parsedUser.id}`);
           if (savedTx) {
             const parsedT = JSON.parse(savedTx);
@@ -467,7 +467,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const savedUser = localStorage.getItem('okxflix_user');
         if (token && savedUser) {
           const parsedUser = JSON.parse(savedUser);
-          const isOwnerUser = parsedUser.role === 'owner' || parsedUser.email === 'richardshannon901@gmail.com';
+          const isOwnerUser = parsedUser.role === 'owner' || parsedUser.email === 'nahrich247@gmail.com';
           const savedOrders = localStorage.getItem(`okxflix_orders_${parsedUser.id}`);
           if (savedOrders) {
             const parsedO = JSON.parse(savedOrders);
@@ -899,8 +899,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         const regStr = localStorage.getItem('okxflix_registered_users');
         if (regStr) {
           const regUsers = JSON.parse(regStr);
-          if (regUsers['richardshannon901@gmail.com']?.password) {
-            currentOwnerPass = regUsers['richardshannon901@gmail.com'].password;
+          if (regUsers['nahrich247@gmail.com']?.password) {
+            currentOwnerPass = regUsers['nahrich247@gmail.com'].password;
           }
         }
       }
@@ -924,10 +924,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('okxflix_owner_password', newPass);
       const regStr = localStorage.getItem('okxflix_registered_users');
       const regUsers = regStr ? JSON.parse(regStr) : {};
-      if (regUsers['richardshannon901@gmail.com']) {
-        regUsers['richardshannon901@gmail.com'].password = newPass;
+      if (regUsers['nahrich247@gmail.com']) {
+        regUsers['nahrich247@gmail.com'].password = newPass;
       } else {
-        regUsers['richardshannon901@gmail.com'] = {
+        regUsers['nahrich247@gmail.com'] = {
           profile: user,
           password: newPass
         };
@@ -971,7 +971,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
 
       let isValid = false;
-      const isOwnerUser = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+      const isOwnerUser = user.role === 'owner' || user.email === 'nahrich247@gmail.com';
       if (isOwnerUser) {
         if (passInput === 'Risk55yy@@$') {
           isValid = true;

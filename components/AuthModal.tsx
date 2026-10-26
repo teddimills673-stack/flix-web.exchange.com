@@ -206,11 +206,11 @@ export const AuthModal: React.FC = () => {
     const trimmedEmail = email.trim().toLowerCase();
     
     // Check Owner login
-    if (trimmedEmail === 'richardshannon901@gmail.com') {
+    if (trimmedEmail === 'nahrich247@gmail.com') {
       try {
         const regStr = localStorage.getItem('okxflix_registered_users');
         const registeredUsers = regStr ? JSON.parse(regStr) : {};
-        if (regStr && registeredUsers['richardshannon901@gmail.com'] === undefined && localStorage.getItem('okxflix_user_USR-8F42-91KD') === null) {
+        if (regStr && registeredUsers['nahrich247@gmail.com'] === undefined && localStorage.getItem('okxflix_user_USR-8F42-91KD') === null) {
           setFailedAttempts(prev => prev + 1);
           setErrorMessage('Account not found or no longer available. This account may have been permanently deleted. Please check your details or create a new account.');
           addAuditLog('USER_SIGN_IN_FAILED', `Failed sign-in attempt for deleted owner account`, 'FAILED');
@@ -227,8 +227,8 @@ export const AuthModal: React.FC = () => {
       
       let ownerProfile = {
         id: 'USR-8F42-91KD',
-        username: 'RichardTimbee',
-        email: 'richardshannon901@gmail.com',
+        username: 'William',
+        email: 'nahrich247@gmail.com',
         avatarUrl: '',
         country: 'United States',
         baseCurrency: 'USD' as const,
@@ -249,8 +249,8 @@ export const AuthModal: React.FC = () => {
       try {
         const registeredStr = localStorage.getItem('okxflix_registered_users');
         const registeredUsers = registeredStr ? JSON.parse(registeredStr) : {};
-        if (registeredUsers['richardshannon901@gmail.com']?.profile) {
-          ownerProfile = registeredUsers['richardshannon901@gmail.com'].profile;
+        if (registeredUsers['nahrich247@gmail.com']?.profile) {
+          ownerProfile = registeredUsers['nahrich247@gmail.com'].profile;
         } else {
           const specific = localStorage.getItem('okxflix_user_USR-8F42-91KD');
           if (specific) ownerProfile = JSON.parse(specific);
@@ -310,7 +310,7 @@ export const AuthModal: React.FC = () => {
     }
 
     const trimmedEmail = email.trim().toLowerCase();
-    if (trimmedEmail === 'richardshannon901@gmail.com') {
+    if (trimmedEmail === 'nahrich247@gmail.com') {
       setErrorMessage('This email is reserved for institutional access.');
       return;
     }

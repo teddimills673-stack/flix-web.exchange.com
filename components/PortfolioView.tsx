@@ -18,7 +18,7 @@ export const PortfolioView: React.FC = () => {
   const { 
     user, balances, convertCurrency, setActiveTab 
   } = useApp();
-  const isOwner = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+  const isOwner = user.role === 'owner' || user.email === 'nahrich247@gmail.com';
 
   const totalUSD = balances.reduce((acc, b) => acc + b.valueUSD, 0);
   const formattedTotal = convertCurrency(totalUSD);

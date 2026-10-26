@@ -31,7 +31,7 @@ export const TradingView: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [orderError, setOrderError] = useState<string | null>(null);
 
-  const isOwner = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+  const isOwner = user.role === 'owner' || user.email === 'nahrich247@gmail.com';
 
   // Real-time connection & data states
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'error' | 'disconnected'>('connecting');

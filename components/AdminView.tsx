@@ -18,7 +18,7 @@ export const AdminView: React.FC = () => {
     adminLastVerifiedAt, balances
   } = useApp();
 
-  const isOwner = user.role === 'owner' || user.email === 'richardshannon901@gmail.com';
+  const isOwner = user.role === 'owner' || user.email === 'nahrich247@gmail.com';
 
   const [reauthPass, setReauthPass] = useState('');
   const [reauthError, setReauthError] = useState('');
